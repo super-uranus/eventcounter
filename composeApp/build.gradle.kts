@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -64,11 +65,19 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.material3AdaptiveNavigationSuite)
+            implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.compose.material3.windowSizeClass)
+
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.1.2")
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive-layout:1.1.2")
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive-navigation:1.1.2")
+
             implementation(projects.shared)
         }
         commonTest.dependencies {

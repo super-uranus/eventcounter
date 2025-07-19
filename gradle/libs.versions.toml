@@ -1,4 +1,5 @@
 [versions]
+accompanistAdaptive = "0.37.3"
 agp = "8.11.1"
 android-compileSdk = "36"
 android-minSdk = "24"
@@ -17,8 +18,10 @@ kotlin = "2.2.0"
 kotlinx-coroutines = "1.10.2"
 ktor = "3.2.2"
 logback = "1.5.18"
+material3WindowSizeClassVersion = "1.8.2"
 
 [libraries]
+accompanist-adaptive = { module = "com.google.accompanist:accompanist-adaptive", version.ref = "accompanistAdaptive" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -35,6 +38,7 @@ logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 ktor-serverCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-serverNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
+compose-material3-windowSizeClass = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "material3WindowSizeClassVersion" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -41,6 +41,8 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
+            implementation(libs.compose.material3.windowSizeClass)
+            implementation(libs.accompanist.adaptive)
             // put your Multiplatform dependencies here
         }
         commonTest.dependencies {
