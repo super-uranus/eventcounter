@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import eventcounter.composeapp.generated.resources.Res
 import eventcounter.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 // Import Scaffold, TopAppBar, BottomAppBar and other necessary Material components
@@ -56,129 +57,131 @@ fun App() {
     var eventName by remember { mutableStateOf("") }
 
     MaterialTheme {
-        val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-        // For BottomAppBar, we'll manage its visibility manually based on scroll direction
+        EventCounterNavigationWrapperUI {
+            val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            // For BottomAppBar, we'll manage its visibility manually based on scroll direction
 
-        var isScrollingUp by remember { mutableStateOf(true) }
-        var previousScrollOffset by remember { mutableStateOf(0) }
-        val listState = rememberLazyListState()
+            var isScrollingUp by remember { mutableStateOf(true) }
+            var previousScrollOffset by remember { mutableStateOf(0) }
+            val listState = rememberLazyListState()
 
-        // Detect scroll direction
-        LaunchedEffect(listState.firstVisibleItemScrollOffset) {
-            if (previousScrollOffset < listState.firstVisibleItemScrollOffset) {
-                isScrollingUp = false // Scrolling down
-            } else if (previousScrollOffset > listState.firstVisibleItemScrollOffset) {
-                isScrollingUp = true // Scrolling up
+            // Detect scroll direction
+            LaunchedEffect(listState.firstVisibleItemScrollOffset) {
+                if (previousScrollOffset < listState.firstVisibleItemScrollOffset) {
+                    isScrollingUp = false // Scrolling down
+                } else if (previousScrollOffset > listState.firstVisibleItemScrollOffset) {
+                    isScrollingUp = true // Scrolling up
+                }
+                previousScrollOffset = listState.firstVisibleItemScrollOffset
             }
-            previousScrollOffset = listState.firstVisibleItemScrollOffset
-        }
-        // A more robust way to detect scroll direction for hiding/showing bottom app bar
-        val isBottomBarVisible by remember {
-            derivedStateOf {
-                // Show if scrolling up, or if at the top of the list
-                isScrollingUp || listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+            // A more robust way to detect scroll direction for hiding/showing bottom app bar
+            val isBottomBarVisible by remember {
+                derivedStateOf {
+                    // Show if scrolling up, or if at the top of the list
+                    isScrollingUp || listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+                }
             }
-        }
 
-        Scaffold(
-            modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-            topBar = {
-                TopAppBar(
-                    title = { Text("My App") },
-                    navigationIcon = {
-                        IconButton(onClick = { /* Handle navigation icon press */ }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Navigation menu")
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { /* Handle search action */ }) {
-                            Icon(Icons.Filled.Search, contentDescription = "Search")
-                        }
-                        IconButton(onClick = { /* Handle more actions */ }) {
-                            Icon(Icons.Filled.MoreVert, contentDescription = "More options")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    scrollBehavior = topAppBarScrollBehavior
-                )
-            },
-            bottomBar = {
-                // Animate the visibility of the BottomAppBar
-                AnimatedVisibility(
-                    visible = isBottomBarVisible,
-                    enter = slideInVertically(initialOffsetY = { it }), // Enter from bottom
-                    exit = slideOutVertically(targetOffsetY = { it })  // Exit to bottom
-                ) {
-                    BottomAppBar(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.primary,
+            Scaffold(
+                modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                topBar = {
+                    TopAppBar(
+                        title = { Text("My App") },
+                        navigationIcon = {
+                            IconButton(onClick = { /* Handle navigation icon press */ }) {
+                                Icon(Icons.Filled.Menu, contentDescription = "Navigation menu")
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { /* Handle search action */ }) {
+                                Icon(Icons.Filled.Search, contentDescription = "Search")
+                            }
+                            IconButton(onClick = { /* Handle more actions */ }) {
+                                Icon(Icons.Filled.MoreVert, contentDescription = "More options")
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            titleContentColor = MaterialTheme.colorScheme.primary,
+                        ),
+                        scrollBehavior = topAppBarScrollBehavior
+                    )
+                },
+                bottomBar = {
+                    // Animate the visibility of the BottomAppBar
+                    AnimatedVisibility(
+                        visible = isBottomBarVisible,
+                        enter = slideInVertically(initialOffsetY = { it }), // Enter from bottom
+                        exit = slideOutVertically(targetOffsetY = { it })  // Exit to bottom
                     ) {
-                        IconButton(onClick = { /* Handle share action */ }) {
-                            Icon(Icons.Filled.Share, contentDescription = "Share")
+                        BottomAppBar(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.primary,
+                        ) {
+                            IconButton(onClick = { /* Handle share action */ }) {
+                                Icon(Icons.Filled.Share, contentDescription = "Share")
+                            }
+                            // Add other bottom app bar items here
                         }
-                        // Add other bottom app bar items here
                     }
                 }
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding) // Apply the padding provided by Scaffold
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                var showContent by remember { mutableStateOf(false) }
-                Button(onClick = { showContent = !showContent }) {
-                    Text("Click me!")
-                }
-                AnimatedVisibility(showContent) {
-                    val greeting = remember { Greeting().greet() }
-                    Column(
-                        Modifier.fillMaxWidth().padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Image(painterResource(Res.drawable.compose_multiplatform), null)
-                        Text("Compose: $greeting")
-                    }
-                }
-                OutlinedTextField(
-                    value = eventName,
-                    onValueChange = { eventName = it },
-                    label = { Text("Event Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = {
-                        viewModel.addEvent(eventName)
-                        eventName = ""
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Add Event")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                // Using LazyColumn for scrollable content
-                LazyColumn(
-                    state = listState,
+            ) { innerPadding ->
+                Column(
                     modifier = Modifier
                         .padding(innerPadding) // Apply the padding provided by Scaffold
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Content that makes the screen scrollable
-                    // Add more items to make the list scrollable
-                    items(viewModel.events) { event ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    var showContent by remember { mutableStateOf(false) }
+                    Button(onClick = { showContent = !showContent }) {
+                        Text("Click me!")
+                    }
+                    AnimatedVisibility(showContent) {
+                        val greeting = remember { Greeting().greet() }
+                        Column(
+                            Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Name: ${event.name}")
-                                Text("Timestamp: ${event.timestamp}")
-                                Text("Time Zone: ${event.timeZone}")
+                            Image(painterResource(Res.drawable.compose_multiplatform), null)
+                            Text("Compose: $greeting")
+                        }
+                    }
+                    OutlinedTextField(
+                        value = eventName,
+                        onValueChange = { eventName = it },
+                        label = { Text("Event Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            viewModel.addEvent(eventName)
+                            eventName = ""
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add Event")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    // Using LazyColumn for scrollable content
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .padding(innerPadding) // Apply the padding provided by Scaffold
+                            .fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Content that makes the screen scrollable
+                        // Add more items to make the list scrollable
+                        items(viewModel.events) { event ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Name: ${event.name}")
+                                    Text("Timestamp: ${event.timestamp}")
+                                    Text("Time Zone: ${event.timeZone}")
+                                }
                             }
                         }
                     }
@@ -187,3 +190,51 @@ fun App() {
         }
     }
 }
+    /*
+    MaterialTheme {
+        EventCounterNavigationWrapperUI {
+            val listState = rememberLazyListState()
+            // Using LazyColumn for scrollable content
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .padding() // Apply the padding provided by Scaffold
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Content that makes the screen scrollable
+                item {
+                    var showContent by remember { mutableStateOf(false) }
+                    Button(onClick = { showContent = !showContent }) {
+                        Text("Click me!")
+                    }
+                    AnimatedVisibility(showContent) {
+                        val greeting = remember { Greeting().greet() }
+                        Column(
+                            Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(painterResource(Res.drawable.compose_multiplatform), null)
+                            Text("Compose: $greeting")
+                        }
+                    }
+                    val adaptiveInfo = currentWindowAdaptiveInfo()
+                    val sizeClassText =
+                        "${adaptiveInfo.windowSizeClass.windowWidthSizeClass}\n" +
+                                "${adaptiveInfo.windowSizeClass.windowHeightSizeClass}"
+                    Text(
+                        text = sizeClassText,
+                        color = Color.Magenta,
+                        modifier = Modifier.padding(
+                            WindowInsets.safeDrawing.asPaddingValues()
+                        )
+                    )
+                }
+                // Add more items to make the list scrollable
+                items(50) { index ->
+                    Text("Item ${index + 1}", modifier = Modifier.padding(16.dp))
+                }
+            }
+        }
+    }
+    */
