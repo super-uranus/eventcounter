@@ -1,6 +1,6 @@
 [versions]
 accompanistAdaptive = "0.37.3"
-agp = "8.11.1"
+agp = "8.12.0"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "33"

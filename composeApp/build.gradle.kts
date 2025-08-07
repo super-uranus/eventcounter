@@ -3,6 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -18,6 +19,13 @@ kotlin {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
+        }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+
+        dependencies {
+            androidTestImplementation("androidx.compose.ui:ui-test-junit4-android:1.8.3")
+            debugImplementation("androidx.compose.ui:ui-test-manifest:1.8.3")
         }
     }
     
@@ -56,7 +64,8 @@ kotlin {
     
     sourceSets {
         val desktopMain by getting
-        
+        val desktopTest by getting
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -74,18 +83,23 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.compose.material3.windowSizeClass)
 
-            implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.1.2")
-            implementation("org.jetbrains.compose.material3.adaptive:adaptive-layout:1.1.2")
-            implementation("org.jetbrains.compose.material3.adaptive:adaptive-navigation:1.1.2")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
 
             implementation(projects.shared)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+        }
+        // Adds the desktop test dependency
+        desktopTest.dependencies {
+            implementation(compose.desktop.currentOs)
         }
     }
 }
@@ -100,6 +114,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     packaging {
         resources {
